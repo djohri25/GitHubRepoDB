@@ -1,0 +1,20 @@
+/****** Object:  Table [dbo].[HPNoteAlert_RowLock]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[HPNoteAlert_RowLock](
+	[ID] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[HPNoteAlertID] [int] NOT NULL,
+	[Owner] [nvarchar](64) NOT NULL,
+	[DateLocked] [datetime] NOT NULL,
+ CONSTRAINT [PK_HPNoteAlert_RowLock] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE NONCLUSTERED INDEX [IX_HPNoteAlert_RowLock] ON [dbo].[HPNoteAlert_RowLock]
+(
+	[HPNoteAlertID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+ALTER TABLE [dbo].[HPNoteAlert_RowLock] ADD  CONSTRAINT [DF_HPNoteAlert_RowLocks_LockedAt]  DEFAULT (getutcdate()) FOR [DateLocked]

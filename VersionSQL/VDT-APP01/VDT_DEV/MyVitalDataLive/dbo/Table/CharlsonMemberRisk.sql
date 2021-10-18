@@ -1,0 +1,48 @@
+/****** Object:  Table [dbo].[CharlsonMemberRisk]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[CharlsonMemberRisk](
+	[RecordNumber] [int] IDENTITY(1,1) NOT NULL,
+	[MVDID] [varchar](15) NOT NULL,
+	[MonthID] [varchar](6) NULL,
+	[Charlson_Score] [int] NULL,
+	[CategoryID] [int] NULL,
+	[Createdate] [datetime] NULL,
+	[Updatedate] [datetime] NULL,
+ CONSTRAINT [PK_CharlsonMemberRisk] PRIMARY KEY NONCLUSTERED 
+(
+	[RecordNumber] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+SET ANSI_PADDING ON
+
+CREATE CLUSTERED INDEX [IX_CI_CharlsonMemberRisk_1] ON [dbo].[CharlsonMemberRisk]
+(
+	[MVDID] ASC,
+	[MonthID] ASC,
+	[Charlson_Score] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_CharlsonMemberRisk_CategoryID] ON [dbo].[CharlsonMemberRisk]
+(
+	[CategoryID] ASC
+)
+INCLUDE([MVDID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_CharlsonMemberRisk_MonthID] ON [dbo].[CharlsonMemberRisk]
+(
+	[MonthID] ASC
+)
+INCLUDE([MVDID],[Charlson_Score]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_NCI_CharlsonMemberRisk_2] ON [dbo].[CharlsonMemberRisk]
+(
+	[MVDID] ASC,
+	[MonthID] ASC,
+	[Charlson_Score] ASC,
+	[CategoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+ALTER TABLE [dbo].[CharlsonMemberRisk] ADD  CONSTRAINT [DF_CharlsonMemberRisk_Createdate]  DEFAULT (getutcdate()) FOR [Createdate]

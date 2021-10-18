@@ -1,0 +1,116 @@
+/****** Object:  Table [dbo].[HPAlert]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[HPAlert](
+	[ID] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[AgentID] [nvarchar](50) NULL,
+	[AlertDate] [datetime] NULL,
+	[Facility] [nvarchar](50) NULL,
+	[Customer] [nvarchar](50) NULL,
+	[Text] [nvarchar](1000) NULL,
+	[MemberID] [nvarchar](20) NULL,
+	[StatusID] [int] NULL,
+	[RecordAccessID] [int] NULL,
+	[DateCreated] [datetime] NULL,
+	[DateModified] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](64) NULL,
+	[TriggerType] [varchar](50) NULL,
+	[TriggerID] [int] NULL,
+	[RecipientType] [varchar](50) NULL,
+	[RecipientCustID] [int] NULL,
+	[DischargeDisposition] [varchar](100) NULL,
+	[SourceName] [varchar](50) NULL,
+	[ChiefComplaint] [varchar](100) NULL,
+	[EMSNote] [varchar](1000) NULL,
+	[MVDID] [varchar](30) NULL,
+	[StatusDate] [datetime] NULL,
+	[LockedBy] [varchar](50) NULL,
+ CONSTRAINT [PK_HPAlert] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE NONCLUSTERED INDEX [Alert_Date] ON [dbo].[HPAlert]
+(
+	[RecipientCustID] ASC,
+	[AlertDate] ASC
+)
+INCLUDE([ID],[AgentID],[MemberID],[TriggerID],[RecipientType]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_HPAlert_Agent_Type_Date_CustID] ON [dbo].[HPAlert]
+(
+	[AgentID] ASC,
+	[RecipientType] ASC,
+	[RecipientCustID] ASC,
+	[AlertDate] ASC
+)
+INCLUDE([ID],[MemberID],[TriggerID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_HPAlert_AlertDate_DESC] ON [dbo].[HPAlert]
+(
+	[AlertDate] DESC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 85) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_HPAlert_DateModified] ON [dbo].[HPAlert]
+(
+	[DateModified] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_HPAlert_Index100] ON [dbo].[HPAlert]
+(
+	[RecipientCustID] ASC,
+	[AlertDate] ASC
+)
+INCLUDE([ID],[AgentID],[RecipientType],[MVDID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_HPAlert_MemberID] ON [dbo].[HPAlert]
+(
+	[MemberID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_HPAlert_RecordAccessID] ON [dbo].[HPAlert]
+(
+	[RecordAccessID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_HPAlert_TriggerID] ON [dbo].[HPAlert]
+(
+	[TriggerID] ASC,
+	[RecipientCustID] ASC,
+	[SourceName] ASC
+)
+INCLUDE([AgentID],[Text],[MemberID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_HPAlert_TriggerType] ON [dbo].[HPAlert]
+(
+	[TriggerType] ASC,
+	[MVDID] ASC
+)
+INCLUDE([MemberID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_HPAlert_X] ON [dbo].[HPAlert]
+(
+	[AgentID] ASC,
+	[RecipientType] ASC,
+	[RecipientCustID] ASC,
+	[AlertDate] ASC
+)
+INCLUDE([ID],[MVDID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [StatusID_AlertDate] ON [dbo].[HPAlert]
+(
+	[StatusID] ASC,
+	[AlertDate] ASC
+)
+INCLUDE([ID],[AgentID],[Facility],[Customer],[Text],[MemberID],[DateCreated],[DateModified],[ModifiedBy],[TriggerType],[TriggerID],[RecipientType],[DischargeDisposition],[ChiefComplaint],[EMSNote]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+ALTER TABLE [dbo].[HPAlert] ADD  CONSTRAINT [DF_HPAlert_DateCreated]  DEFAULT (getutcdate()) FOR [DateCreated]
+ALTER TABLE [dbo].[HPAlert] ADD  CONSTRAINT [DF_HPAlert_DateModified]  DEFAULT (getutcdate()) FOR [DateModified]
+ALTER TABLE [dbo].[HPAlert] ADD  CONSTRAINT [DF_HPAlert_StatusDate]  DEFAULT (getutcdate()) FOR [StatusDate]
+ALTER TABLE [dbo].[HPAlert]  WITH NOCHECK ADD  CONSTRAINT [FK_HPAlert_LookupHPAlertStatus] FOREIGN KEY([StatusID])
+REFERENCES [dbo].[LookupHPAlertStatus] ([ID])
+ALTER TABLE [dbo].[HPAlert] NOCHECK CONSTRAINT [FK_HPAlert_LookupHPAlertStatus]
+ALTER TABLE [dbo].[HPAlert]  WITH NOCHECK ADD  CONSTRAINT [FK_HPAlert_MVD_AppRecord] FOREIGN KEY([RecordAccessID])
+REFERENCES [dbo].[MVD_AppRecord] ([RecordID])
+ALTER TABLE [dbo].[HPAlert] NOCHECK CONSTRAINT [FK_HPAlert_MVD_AppRecord]

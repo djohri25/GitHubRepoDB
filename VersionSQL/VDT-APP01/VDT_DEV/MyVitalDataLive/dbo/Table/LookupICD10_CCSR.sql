@@ -1,0 +1,18 @@
+/****** Object:  Table [dbo].[LookupICD10_CCSR]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[LookupICD10_CCSR](
+	[ICD10CM_CODE] [varchar](8000) NULL,
+	[ICD10CM_CODE_DESCRIPTION] [varchar](8000) NULL,
+	[CCSR_CATEGORY_1] [varchar](8000) NULL,
+	[CCSR_CATEGORY_1_DESCRIPTION] [varchar](500) NULL,
+	[CCSR_CATEGORY_2] [varchar](8000) NULL,
+	[CCSR_CATEGORY_2_DESCRIPTION] [varchar](500) NULL,
+	[CCSR_CATEGORY_3] [varchar](8000) NULL,
+	[CCSR_CATEGORY_3_DESCRIPTION] [varchar](500) NULL,
+	[CCSR_CATEGORY_4] [varchar](8000) NULL,
+	[CCSR_CATEGORY_4_DESCRIPTION] [varchar](500) NULL,
+	[CCSR_CATEGORY_5] [varchar](8000) NULL,
+	[CCSR_CATEGORY_5_DESCRIPTION] [varchar](500) NULL
+) ON [PRIMARY]

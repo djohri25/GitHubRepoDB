@@ -1,0 +1,19 @@
+/****** Object:  Table [dbo].[ABCBS_GrpCcmEligMbr]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[ABCBS_GrpCcmEligMbr](
+	[MRB_ID] [varchar](50) NOT NULL,
+	[CCM_GRP_ELIG_IND] [varchar](50) NULL,
+	[CCM_TYPE] [varchar](50) NULL,
+	[EFFECTIVE_DT] [varchar](50) NULL,
+	[TERM_DT] [varchar](50) NULL,
+	[LOAD_DT] [varchar](50) NULL
+) ON [PRIMARY]
+
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_ABCBS_GrpCcmEligMbr_Mrb_ID] ON [dbo].[ABCBS_GrpCcmEligMbr]
+(
+	[MRB_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]

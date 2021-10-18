@@ -1,0 +1,31 @@
+/****** Object:  Table [dbo].[LookupMedicationNDC]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[LookupMedicationNDC](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[FDANum] [nvarchar](7) NULL,
+	[LabelerCode] [nvarchar](6) NULL,
+	[ProductCode] [nvarchar](4) NULL,
+	[Strength] [nvarchar](10) NULL,
+	[Unit] [nvarchar](50) NULL,
+	[RXorOTC] [char](1) NULL,
+	[Name] [nvarchar](100) NULL,
+ CONSTRAINT [PK_LookupMedicationNDC_1] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+) ON [PRIMARY]
+
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_LookupMedicationNDC] ON [dbo].[LookupMedicationNDC]
+(
+	[LabelerCode] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_LookupMedicationNDC_1] ON [dbo].[LookupMedicationNDC]
+(
+	[ProductCode] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]

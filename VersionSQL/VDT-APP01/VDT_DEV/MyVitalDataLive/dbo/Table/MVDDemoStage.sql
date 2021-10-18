@@ -1,0 +1,15 @@
+/****** Object:  Table [dbo].[MVDDemoStage]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[MVDDemoStage](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[ICENUMBER] [varchar](20) NOT NULL,
+	[GenderID] [int] NULL,
+	[DOB] [date] NULL,
+	[BCBSICENUMBER] [varchar](20) NULL,
+ CONSTRAINT [PK_MVDDemo] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]

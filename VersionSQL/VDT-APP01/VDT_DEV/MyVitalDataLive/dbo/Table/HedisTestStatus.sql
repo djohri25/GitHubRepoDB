@@ -1,0 +1,37 @@
+/****** Object:  Table [dbo].[HedisTestStatus]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[HedisTestStatus](
+	[ID] [int] IDENTITY(1,1) NOT NULL,
+	[MemberID] [varchar](50) NULL,
+	[MVDID] [varchar](50) NULL,
+	[TestID] [int] NULL,
+	[StatusID] [int] NULL,
+	[RemindInDaysCount] [int] NULL,
+	[Created] [datetime] NULL,
+	[CreatedBy] [varchar](100) NULL,
+ CONSTRAINT [PK_HedisTestStatus] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_HedisTestStatus_MVDID] ON [dbo].[HedisTestStatus]
+(
+	[MVDID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_HedisTestStatus_StatusID] ON [dbo].[HedisTestStatus]
+(
+	[StatusID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_HedisTestStatus_StatusID_TestID_Created] ON [dbo].[HedisTestStatus]
+(
+	[StatusID] ASC,
+	[TestID] ASC,
+	[Created] ASC
+)
+INCLUDE([MVDID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+ALTER TABLE [dbo].[HedisTestStatus] ADD  CONSTRAINT [DF_HedisTestStatus_Created]  DEFAULT (getdate()) FOR [Created]

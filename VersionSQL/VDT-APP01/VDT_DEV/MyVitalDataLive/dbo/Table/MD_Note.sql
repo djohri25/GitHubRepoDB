@@ -1,0 +1,29 @@
+/****** Object:  Table [dbo].[MD_Note]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[MD_Note](
+	[ID] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[MvdID] [varchar](15) NULL,
+	[Text] [varchar](2000) NULL,
+	[CreatedByUserID] [varchar](50) NULL,
+	[Created] [datetime] NULL,
+	[ModifyByUserID] [varchar](50) NULL,
+	[ModifyDate] [datetime] NULL,
+ CONSTRAINT [PK_MD_Note] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+) ON [PRIMARY]
+
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_MD_Note] ON [dbo].[MD_Note]
+(
+	[MvdID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+ALTER TABLE [dbo].[MD_Note] ADD  CONSTRAINT [DF_MD_Note_Created]  DEFAULT (getutcdate()) FOR [Created]
+ALTER TABLE [dbo].[MD_Note] ADD  CONSTRAINT [DF_MD_Note_ModifyDate]  DEFAULT (getutcdate()) FOR [ModifyDate]
+ALTER TABLE [dbo].[MD_Note]  WITH CHECK ADD  CONSTRAINT [FK_MD_Note_MD_Note] FOREIGN KEY([MvdID])
+REFERENCES [dbo].[MainPersonalDetails] ([ICENUMBER])
+ALTER TABLE [dbo].[MD_Note] CHECK CONSTRAINT [FK_MD_Note_MD_Note]

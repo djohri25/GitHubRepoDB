@@ -1,0 +1,55 @@
+/****** Object:  Table [dbo].[MainRisk]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[MainRisk](
+	[RecordNumber] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[MVDID] [varchar](15) NOT NULL,
+	[MonthID] [varchar](6) NULL,
+	[ReportDate] [datetime] NULL,
+	[CreationDate] [datetime] NULL,
+	[CreatedBy] [nvarchar](250) NULL,
+	[Charlson_Score] [int] NULL,
+	[Charlson_CAT] [varchar](20) NULL,
+	[Elixhauser_Score] [int] NULL,
+	[Elixhauser_CAT] [varchar](20) NULL,
+	[HCC_Score] [float] NULL,
+	[HCC_CAT] [varchar](20) NULL,
+	[HCC_Score_Adj] [float] NULL,
+	[HCC_Score_NonAdj] [float] NULL,
+ CONSTRAINT [PK_MainRisk] PRIMARY KEY CLUSTERED 
+(
+	[RecordNumber] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, FILLFACTOR = 100) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE NONCLUSTERED INDEX [IX_MainRisk_Charlson_Score] ON [dbo].[MainRisk]
+(
+	[Charlson_Score] ASC
+)
+INCLUDE([MVDID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_MainRisk_Elix_Score] ON [dbo].[MainRisk]
+(
+	[Elixhauser_Score] ASC
+)
+INCLUDE([MVDID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_MainRisk_MonthID] ON [dbo].[MainRisk]
+(
+	[MonthID] ASC
+)
+INCLUDE([MVDID],[HCC_Score_Adj],[Charlson_Score],[Elixhauser_Score]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_NCI_MainRisk_MVDID_MonthID] ON [dbo].[MainRisk]
+(
+	[MVDID] ASC,
+	[MonthID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+ALTER TABLE [dbo].[MainRisk] ADD  CONSTRAINT [DF_MainRisk_CreationDate]  DEFAULT (getutcdate()) FOR [CreationDate]
+ALTER TABLE [dbo].[MainRisk]  WITH CHECK ADD  CONSTRAINT [FK_MainRisk_MainPersonalDetails] FOREIGN KEY([MVDID])
+REFERENCES [dbo].[MainPersonalDetails] ([ICENUMBER])
+ON UPDATE CASCADE
+ON DELETE CASCADE
+ALTER TABLE [dbo].[MainRisk] CHECK CONSTRAINT [FK_MainRisk_MainPersonalDetails]

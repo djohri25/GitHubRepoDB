@@ -1,0 +1,38 @@
+/****** Object:  Table [dbo].[VDTReplicationHistory]    Committed by VersionSQL https://www.versionsql.com ******/
+
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[VDTReplicationHistory](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
+	[JobId] [nvarchar](255) NULL,
+	[JobName] [nvarchar](255) NULL,
+	[InstanceId] [bigint] NULL,
+	[Status] [int] NULL,
+	[RespondedFlag] [bit] NULL
+) ON [PRIMARY]
+
+CREATE NONCLUSTERED INDEX [IX_VDTReplicationHistory_InstanceId] ON [dbo].[VDTReplicationHistory]
+(
+	[InstanceId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_VDTReplicationHistory_JobId_InstanceId] ON [dbo].[VDTReplicationHistory]
+(
+	[JobId] ASC,
+	[InstanceId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_VDTReplicationHistory_JobName_InstanceId] ON [dbo].[VDTReplicationHistory]
+(
+	[JobName] ASC,
+	[InstanceId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+SET ANSI_PADDING ON
+
+CREATE NONCLUSTERED INDEX [IX_VDTReplicationHistory_JobName_RespondedFlag] ON [dbo].[VDTReplicationHistory]
+(
+	[JobName] ASC,
+	[RespondedFlag] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
