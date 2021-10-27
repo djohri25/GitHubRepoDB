@@ -11,6 +11,8 @@ note:  This is part of the exclusion mechanism for the CareFlow Rules.  Each car
 WHO		WHEN		WHAT
 Scott	2021-07-22	Created to load the CFR_ExcludedMVDID table with all of the exclusions.
 Scott	2021-09-22  Add OpportunityLetter exclusion (30) to restrict multiple org letters for 120 days.
+Scott	2021-10-21	Add ExclusionID (31) for members who have received an ER Visit letter in 90 days.
+Scott	2021-10-21	Add ExclusionID (32) for members who have received 2 ER Visit letters in 365 days.
 
 EXEC uspCFR_LoadExcludedMVDID --(41 sec)(4:47)
 

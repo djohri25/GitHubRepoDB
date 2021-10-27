@@ -37,6 +37,9 @@ CREATE TABLE [dbo].[HPAlertNote](
 	[IsDelete] [bit] NULL,
 	[SessionID] [varchar](max) NULL,
 	[DocType] [varchar](100) NULL,
+	[ServiceId] [int] NULL,
+	[ServiceLocationId] [int] NULL,
+	[QuickNoteId] [int] NULL,
  CONSTRAINT [PK_HPAlertNote_ID] PRIMARY KEY CLUSTERED 
 (
 	[ID] ASC

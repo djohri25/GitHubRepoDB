@@ -50,7 +50,7 @@ CareFlowRule268:
 	SET @RuleID = 268
 	SET @OwnerGroup = 168
 
---New Exclusion Code
+--Granular Exclusion Code
 	DROP TABLE IF EXISTS #ExcludedMVDID
 	CREATE TABLE #ExcludedMVDID (MVDID varchar(30))
 

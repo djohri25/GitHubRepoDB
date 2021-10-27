@@ -18,13 +18,13 @@ Date				Modified			Description
 20210707			Jose				Initial Version
 20210728			Sunil Nokku			Remove Break 
 20210730			Jose				Add batch logic
+20211022			Sunil Nokku			Modified LettersInsert from SP call to direct Insert. 
 
 */
-
-
 CREATE Procedure [dbo].[uspPrepareERvsUrgentCareLetter]
 @p_CustomerId int	= NULL,
-@p_ProductId int	= NULL
+@p_ProductId int	= NULL,
+@p_BatchSize int	= 2000
 As
 Begin
 
@@ -32,8 +32,8 @@ Set NoCount On;
 
 Declare
 	@LetterCount					int					= 0,
-	@BatchSize						int					= 2000		--Maximum number of letter every time
-
+	@v_BatchSize					int					= @p_BatchSize,		--Maximum number of letter every time
+	@v_ID							int
 
 Declare 
 	@v_user_name					nvarchar(255),
@@ -46,6 +46,7 @@ Declare
 
 Declare 
 	@v_mvd_id						varchar(20),
+	@v_CountCategory				int,
 	@v_case_owner					varchar(max),
 	@v_mmf_id						bigint,
 	@v_mmf_form_date				datetime,
@@ -64,7 +65,11 @@ Declare
 	@v_branding_name				nvarchar(255),
 	@v_company_name					nvarchar(255),
 	@v_member_type					nvarchar(50),
-	@v_date_of_birth				date;
+	@v_date_of_birth				date,
+	@v_letter_type					int,
+	@v_CareManagerName				varchar(50),
+	@v_CareManagerCredentials		nvarchar(255),
+	@v_CareManagerExtension			varchar(20);
 
 Declare 
 	@v_address1						nvarchar(255),
@@ -79,21 +84,22 @@ Declare
 	@v_email						nvarchar(50),
 	@v_language						nvarchar(50);
 
-
---select * from lookup_generic_code where codeid = 271
 --LetterSSRS
 Declare 
 	@v_note_type_id					bigint				= 271;
 
-----To get the letter names 
---select * from LetterTemplate 
---order by LetterType
+	Drop Table If Exists #LetterERQueue
 
+	Select Count(*) As CountCategory, MVDID 
+	Into #LetterERQueue 
+	From [dbo].[LetterERVisitQueue]
+	Group By MVDID
 
 -- Get the candidate list of packets
 Declare letter_cursor Cursor For
 Select 
-	ccq.[MVDID],
+	er.[MVDID],
+	er.CountCategory,
 	ccq.[CaseOwner],
 	ccq.[MemberID],
 	ccq.[LastName],
@@ -104,26 +110,23 @@ Select
 	fm.[BrandingName],
 	ccq.[CompanyName],	
 	Case
-		When ccq.[CmOrGRegion] = 'WALMART' THEN 'Care'
-		Else 'Case'
-		End											[MemberType],
+	When ccq.[CmOrGRegion] = 'WALMART' THEN 'Care'
+	Else 'Case'
+	End												[MemberType],
 	ccq.[DOB]										[DateOfBirth],
 	'ER vs Urgent Care ASP Letter'					[LetterName]
 From 
-	dbo.[CareFlowTask] ct (readuncommitted)
-	inner join 
-		dbo.[ComputedCareQueue] ccq (readuncommitted) 
-			on ct.[MVDID] = ccq.[MVDID] 
-	inner join dbo.[FinalMemberEtl] fm (readuncommitted)
-		on
-			ct.[MVDID] = fm.[MVDID]
-			and fm.[CMOrgRegion] = ccq.[CmOrGRegion]
+	#LetterERQueue er (readuncommitted)
+	inner join dbo.[ComputedCareQueue] ccq (readuncommitted) 
+	on er.[MVDID] = ccq.[MVDID] 
+	inner join dbo.[FinalMemberEtl] fm (readuncommitted) 
+	on	er.[MVDID] = fm.[MVDID]	and fm.[CMOrgRegion] = ccq.[CmOrGRegion]
 Where 
-	ct.[RuleId] = 268
-	And ccq.[CmOrGRegion] = 'ARSTATEPOLICE'
+	 ccq.[CmOrGRegion] = 'ARSTATEPOLICE'
 Union
 Select 
-	ccq.[MVDID],
+	er.[MVDID],
+	er.CountCategory,
 	ccq.[CaseOwner],
 	ccq.[MemberID],
 	ccq.[LastName],
@@ -140,20 +143,17 @@ Select
 	ccq.[DOB]										[DateOfBirth],
 	'ER vs Urgent Care ASEPSE Letter'				[LetterName]
 From 
-	dbo.[CareFlowTask] ct (readuncommitted)
-	inner join 
-		dbo.[ComputedCareQueue] ccq (readuncommitted) 
-			on ct.[MVDID] = ccq.[MVDID] 
-	inner join dbo.[FinalMemberEtl] fm (readuncommitted)
-		on
-			ct.[MVDID] = fm.[MVDID]
-			and fm.[CMOrgRegion] = ccq.[CmOrGRegion]
+	#LetterERQueue er (readuncommitted)
+	inner join dbo.[ComputedCareQueue] ccq (readuncommitted) 
+	on er.[MVDID] = ccq.[MVDID] 
+	inner join dbo.[FinalMemberEtl] fm (readuncommitted) 
+	on	er.[MVDID] = fm.[MVDID]	and fm.[CMOrgRegion] = ccq.[CmOrGRegion]
 Where 
-	ct.[RuleId] = 268
-	And ccq.[CmOrGRegion] = 'ASEPSE'
+	ccq.[CmOrGRegion] = 'ASEPSE'
 Union
 Select 
-	ccq.[MVDID],
+	er.[MVDID],
+	er.CountCategory,
 	ccq.[CaseOwner],
 	ccq.[MemberID],
 	ccq.[LastName],
@@ -170,20 +170,17 @@ Select
 	ccq.[DOB]										[DateOfBirth],
 	'ER vs Urgent Care FEP Letter'					[LetterName]
 From 
-	dbo.[CareFlowTask] ct (readuncommitted)
-	inner join 
-		dbo.[ComputedCareQueue] ccq (readuncommitted) 
-			on ct.[MVDID] = ccq.[MVDID] 
-	inner join dbo.[FinalMemberEtl] fm (readuncommitted)
-		on
-			ct.[MVDID] = fm.[MVDID]
-			and fm.[CMOrgRegion] = ccq.[CmOrGRegion]
+	#LetterERQueue er (readuncommitted)
+	inner join dbo.[ComputedCareQueue] ccq (readuncommitted) 
+	on er.[MVDID] = ccq.[MVDID] 
+	inner join dbo.[FinalMemberEtl] fm (readuncommitted) 
+	on	er.[MVDID] = fm.[MVDID]	and fm.[CMOrgRegion] = ccq.[CmOrGRegion]
 Where 
-	ct.[RuleId] = 268
-	And ccq.[CmOrGRegion] = 'FEP'
+	ccq.[CmOrGRegion] = 'FEP'
 Union
 Select 
-	ccq.[MVDID],
+	er.[MVDID],
+	er.CountCategory,
 	ccq.[CaseOwner],
 	ccq.[MemberID],
 	ccq.[LastName],
@@ -200,17 +197,13 @@ Select
 	ccq.[DOB]										[DateOfBirth],
 	'ER vs Urgent Care ALOB Letter'					[LetterName]
 From 
-	dbo.[CareFlowTask] ct (readuncommitted)
-	inner join 
-		dbo.[ComputedCareQueue] ccq (readuncommitted) 
-			on ct.[MVDID] = ccq.[MVDID] 
-	inner join dbo.[FinalMemberEtl] fm (readuncommitted)
-		on
-			ct.[MVDID] = fm.[MVDID]
-			and fm.[CMOrgRegion] = ccq.[CmOrGRegion]
+	#LetterERQueue er (readuncommitted)
+	inner join dbo.[ComputedCareQueue] ccq (readuncommitted) 
+	on er.[MVDID] = ccq.[MVDID] 
+	inner join dbo.[FinalMemberEtl] fm (readuncommitted) 
+	on	er.[MVDID] = fm.[MVDID]	and fm.[CMOrgRegion] = ccq.[CmOrGRegion]
 Where 
-	ct.[RuleId] = 268
-	And ccq.[CmOrGRegion] Not In ( 'FEP', 'ARSTATEPOLICE', 'ASEPSE', 'WALMART' )
+	ccq.[CmOrGRegion] Not In ( 'FEP', 'ARSTATEPOLICE', 'ASEPSE', 'WALMART' )
 Order By
 	ccq.[MVDID]
 For Read Only
@@ -221,6 +214,7 @@ Open letter_cursor;
 -- Get the first record
 Fetch Next From letter_cursor Into
 	@v_mvd_id,
+	@v_CountCategory,
 	@v_case_owner,
 	@v_member_id,
 	@v_member_firstname,
@@ -234,23 +228,6 @@ Fetch Next From letter_cursor Into
 	@v_date_of_birth,
 	@v_letter_name;
 
-----For testing purposes
---Select
---	@v_mvd_id,
---	@v_case_owner,
---	@v_member_id,
---	@v_member_firstname,
---	@v_member_lastname,
---	@v_member_name,
---	@v_line_of_business,
---	@v_cm_org_region,
---	@v_branding_name,
---	@v_company_name,
---	@v_member_type,
---	@v_date_of_birth,
---	@v_letter_name;
-
-
 -- Iterate through the list
 While @@FETCH_STATUS = 0
 Begin
@@ -258,142 +235,131 @@ Begin
 		@v_member_case_letter_id	= NULL,
 		@v_letter_member_id			= NULL;
 
-	Exec dbo.[Get_MemberPreferredAddress]
-		@p_MVDID				= @v_mvd_id,
-		@p_Address1				= @v_address1		Output,
-		@p_Address2				= @v_address2		Output,
-		@p_City					= @v_city			Output,
-		@p_State				= @v_state			Output,
-		@p_PostalCode			= @v_postal_code	Output,
-		@p_HomePhone			= @v_home_phone		Output,
-		@p_CellPhone			= @v_cell_phone		Output,
-		@p_WorkPhone			= @v_work_phone		Output,
-		@p_FAX					= @v_fax			Output,
-		@p_Email				= @v_email			Output,
-		@p_Language				= @v_language		Output;
+	SELECT
+	@v_address1 = ISNULL( csme.Address1, fm.Address1 ),
+	@v_address2 = ISNULL( csme.Address2, fm.Address2 ),
+	@v_city = ISNULL( csme.City, fm.City ),
+	@v_state = ISNULL( csme.State, fm.State ),
+	@v_postal_code = ISNULL( csme.PostalCode, fm.Zipcode ),
+	@v_language = ISNULL( csme.[Language], ISNULL( fm.WrittenLanguage, fm.[Language] ) )
+	FROM
+	FinalMember fm
+	LEFT OUTER JOIN
+	(
+		SELECT DISTINCT
+		IceNumber,
+		Address1,
+		Address2,
+		City,
+		State,
+		PostalCode,
+		HomePhone,
+		CellPhone,
+		WorkPhone,
+		FAXPhone,
+		Email,
+		Language,
+		RANK() OVER ( PARTITION BY IceNumber ORDER BY RecordNumber DESC ) record_rank
+		FROM
+		CareSpaceMemberEdit
+		WHERE
+		IceNumber = @v_mvd_id
+		AND IsPrimary = 1
+	) csme
+	ON csme.IceNumber = fm.MVDID
+	AND csme.record_rank = 1
+	WHERE
+	fm.MVDID = @v_mvd_id;
+	
+	Select @v_language = IsNull( @v_language, 'English' )
+	
+	Set @v_user_name = @v_case_owner;
+		
+	Select @v_letter_type = LetterType 
+	From LetterTemplate
+	Where LetterName = @v_letter_name
+	And LetterLanguage = @v_language
 
-	Select
-		@v_language = IsNull( @v_language, 'English' )
+	INSERT INTO dbo.LetterMembers(  
+		 [UserName]					--new column
+		,[MVDID] 
+		,[MemberID]
+		,[MemberLOB] 
+		,[MemberGroup] 
+		,[MemberCMOrgReg]			--new column
+		,[MemberBrandingName]		--new column
+		,[CompanyName]				--new column
+		,[MemberType] 
+		,[MemberName] 
+		,[MemberDOB]
+		,[MemberAddress1] 
+		,[MemberAddress2] 
+		,[MemberState] 
+		,[MemberCity] 
+		,[MemberZip] 
+		,[LetterType] 
+		,[LetterDate] 
+		,[LetterLanguage] 
+		,[LetterDelete] 
+		,[CareManagerName] 
+		,[CareManagerCredentials] 
+		,[CareManagerExtension] 
+		,[Createdby] 
+		,[CreatedDate] 
+		,[Processed] 
+		,[ProcessedDate]
+		,[LetterFlag]
+		,BatchID)
+	SELECT 
+		 @v_user_name					--new column
+		,@v_mvd_id
+		,@v_member_id				
+		,@v_line_of_business				
+		,NULL	
+		,@v_cm_org_region			--new column
+		,@v_branding_name		--new column
+		,@v_company_name				--new column
+		,@v_member_type				
+		,SUBSTRING(@v_member_name, CHARINDEX(', ', @v_member_name) + 2, 8000)  + ' ' + SUBSTRING(@v_member_name, 1, CHARINDEX(', ', @v_member_name) - 1)
+		--,@MemberName
+		,@v_date_of_birth
+		,@v_address1			
+		,@v_address2			
+		,@v_state			
+		,@v_city				
+		,@v_postal_code				
+		,@v_letter_type				
+		,@v_letter_date				
+		,@v_Language			
+		,@v_letter_delete_yn						
+		,@v_CareManagerName		
+		,@v_CareManagerCredentials	
+		,@v_CareManagerExtension	
+		,'System'	
+		,getdate()
+		,'N'
+		,NULL
+		,@v_letter_flag
+		,0
 
-	----For testing purposes
-	--Select 
-	--	@v_mvd_id,
-	--	@v_address1,
-	--	@v_address2,
-	--	@v_city		,
-	--	@v_state	,
-	--	@v_postal_code	,
-	--	@v_home_phone	,
-	--	@v_cell_phone	,
-	--	@v_work_phone	,
-	--	@v_fax			,
-	--	@v_email		,
-	--	@v_language		;
+	SET @v_ID = SCOPE_IDENTITY()
 
+	Update lm
+	Set lm.LetterLogoPath	= lt.LetterLogoPath,
+		lm.LetterFooter		= lt.LetterFooter,
+		lm.LogoPadL			= lt.LogoPadL,
+		lm.LogoPadR			= lt.LogoPadR,
+		lm.LogoPadT			= lt.LogoPadT,
+		lm.LogoPadB			= lt.LogoPadB,
+		lm.MemberType		= lt.MemberType
+	From LetterMembers lm
+	Inner Join LetterTemplate lt On lt.LetterType = lm.LetterType
+	Where lm.ID = @v_ID
+	And lm.LetterLanguage = lt.LetterLanguage
+	And ( IsNull(lm.MemberCMOrgReg,'') = IsNull(lt.CmOrgRegion,'')	
+		Or IsNull(lm.MemberBrandingName,'') = IsNull(lt.BrandingName,'') )
 
-	-- Check to see if letter has already been sent
-	Exec dbo.[Get_ABCBS_MemberContactLetter]
-		@p_MVDID				= @v_mvd_id,
-		@p_LetterName			= @v_letter_name,
-		@p_ID					= @v_member_case_letter_id		Output,
-		@p_LetterMemberID		= @v_letter_member_id			Output,
-		@p_ContactFormID		= @v_cf_id						Output;
-
-	----For testing purposes
-	--Select
-	--	@v_mvd_id,
-	--	@v_letter_name,
-	--	@v_member_case_letter_id	,
-	--	@v_letter_member_id			,
-	--	@v_cf_id					;
-
-	-- If letter has already been sent, don't send it again
-	If ( @v_member_case_letter_id Is Null )
-	Begin
-		-- Send the letter
-		Set @v_user_name = @v_case_owner;
-
-		Exec dbo.[uspABCBSMergeLetterMembers]
-			@UserName					= @v_user_name,
-			@MVDID						= @v_mvd_id,
-			@MemberID					= @v_member_id,
-			@MemberLOB					= @v_line_of_business,
-			@MemberGroup				= NULL,
-			@MemberCMOrgReg				= @v_cm_org_region,
-			@MemberBrandingName			= @v_branding_name,
-			@CompanyName				= @v_company_name,
-			@MemberType					= @v_member_type,
-			@MemberName					= @v_member_name,
-			@MemberDOB					= @v_date_of_birth,
-			@MemberAddress1				= @v_address1,
-			@MemberAddress2				= @v_address2,
-			@MemberCity					= @v_city,
-			@MemberState				= @v_state,
-			@MemberZip					= @v_postal_code,
-			@LetterName					= @v_letter_name,
-			@LetterDate					= @v_letter_date,
-			@LetterLanguage				= @v_language,
-			@LetterDelete				= @v_letter_delete_yn,
-			@CareManagerName			= @v_case_owner,
-			@CareManagerCredentials		= NULL,
-			@CareManagerExtension		= NULL,
-			@LetterFlag					= @v_letter_flag,
-			@ID							= @v_letter_member_id	Output;
-
-		----For testing purposes
-		--Select 
-		--	@v_user_name,
-		--	@v_mvd_id,
-		--	@v_member_id,
-		--	@v_line_of_business,
-		--	NULL,
-		--	@v_cm_org_region,
-		--	@v_branding_name,
-		--	@v_company_name,
-		--	@v_member_type,
-		--	@v_member_name,
-		--	@v_date_of_birth,
-		--	@v_address1,
-		--	@v_address2,
-		--	@v_city,
-		--	@v_state,
-		--	@v_postal_code,
-		--	@v_letter_name,
-		--	@v_letter_date,
-		--	@v_language,
-		--	@v_letter_delete_yn,
-		--	@v_case_owner,
-		--	NULL,
-		--	NULL,
-		--	@v_letter_flag,
-		--	@v_letter_member_id;
-
-
-		Exec dbo.[uspABCBSUpdateLetterMembers]
-			@ID							= @v_letter_member_id,
-			@LetterDelete				= @v_letter_delete_yn,
-			@LetterFlag					= @v_letter_flag;
-
-		----For testing purposes
-		--Select
-		--	@v_letter_member_id,
-		--	@v_letter_delete_yn,
-		--	@v_letter_flag;
-
-		-- Record that the letter was sent
-		Exec dbo.[Set_ABCBS_MemberContactLetter]
-			@p_ID						= @v_member_case_letter_id Output,
-			@p_LetterMemberID			= @v_letter_member_id,
-			@p_ContactFormID			= @v_cf_id;
-
-		----For testing purposes
-		--Select
-		--	@v_member_case_letter_id,
-		--	@v_letter_member_id,
-		--	@v_cf_id;
-			
-
-	 	Insert Into dbo.HPAlertNote (
+	Insert Into dbo.HPAlertNote (
 			Note,
 			AlertStatusID,
 			DateCreated,
@@ -452,9 +418,9 @@ Begin
 		--To support batch logic
 		Set @LetterCount += 1
 
-		If @LetterCount >= @BatchSize
+		If @LetterCount >= @p_BatchSize
 		break
-	End;
+	--End;
 
 	--For testing purposes, process onee 
 	--Break
@@ -462,6 +428,7 @@ Begin
 	-- Get the next record
 	Fetch Next From letter_cursor Into
 		@v_mvd_id,
+		@v_CountCategory,
 		@v_case_owner,
 		@v_member_id,
 		@v_member_firstname,
@@ -478,21 +445,5 @@ End;
 
 Close letter_cursor;
 Deallocate letter_cursor;
-
-
---select top 5 * 
---from lettermembers 
---where lettertype>4
---order by id desc
-
-
---select top 10 *
---from dbo.HPAlertNote
---order by id desc
-
---160348D2854CC4939640
---160423882636AC768501
---16044988B9B310945147
-
 
 End;

@@ -6,7 +6,8 @@ CREATE proc [dbo].[usp_UpdateUserInfoByUserId]
 @Department varchar(128),
 @Signature varchar(128),
 @AgentId varchar(128),
-@Groups varchar(128)
+@Groups varchar(128),
+@PhoneNumber varchar(128) = ''
 
 as
 
@@ -14,7 +15,7 @@ as
 Set NOCOUNT ON
 
 Update
-[AspNetIdentity].[dbo].[AspNetUserInfo]
+[AspNetUserInfo]
 
 SET 
 Supervisor =@Supervisor
@@ -23,3 +24,11 @@ Supervisor =@Supervisor
 ,AgentId= @AgentId
 WHERE 
 UserId =@UserId
+
+Update
+[AspNetUsers]
+
+SET 
+PhoneNumber = @PhoneNumber
+WHERE 
+Id =@UserId

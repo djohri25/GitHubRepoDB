@@ -13,6 +13,8 @@ Modified		Modified By		Details
 20210225		Jose Pons		Add Last and First name
 								Fix columns [Task] and [TaskStatus]
 07/26/2021		Bhupinder Singh #5713 Added new column PlanType
+10/19/2021		Bhupinder Singh #6178 Added parameter for CaseManager that is available on the front end but was not
+								being used to filter the records.
 
 Report_TaskSummary '05/01/2021','07/25/2021',0,'all','all','all','Case Manager'
 */
@@ -24,7 +26,8 @@ CREATE PROCEDURE [dbo].[Report_TaskSummary]
 @LOB				varchar(max) = 'ALL',
 @CmOrgRegion		varchar(max) = 'ALL',
 @CompanyKey			varchar(max) = 'ALL',
-@UserType			varchar(max) = 'ALL'
+@UserType			varchar(max) = 'ALL',
+@CaseManager		varchar(max) = 'ALL'
 AS
 BEGIN
 
@@ -107,6 +110,7 @@ where
 	and ((@CmOrgRegion = 'ALL') or (CHARINDEX(ccq.[CmOrgRegion], @CmOrgRegion) > 0))
 	and ((@UserType = 'ALL') or (CHARINDEX(r.[Description], @UserType) > 0))
 	--and ((@UserType = 'ALL') or r.Description IN (SELECT Item FROM dbo.SplitString(@UserType, ',')))
+	and ((@CaseManager = 'ALL') or t.[Owner] IN (SELECT Item FROM dbo.SplitString(@CaseManager, ',')))
 	and ((@CompanyKey = 'ALL') 
 		or (CHARINDEX(cast(ccq.[CompanyKey] as varchar(10)), @CompanyKey) > 0 
 			or ccq.[CompanyName] LIKE '%'+@CompanyKey+'%'))

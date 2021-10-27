@@ -11,6 +11,7 @@ AS
 Modifications:
 WHO			WHEN		WHAT
 Scott		2020-11-18	Refactored to process three careflow rules to use new merge process
+Scott		2021-10-21	Retired 268 to dbo.uspLetterERVisitQueue
 
 EXEC uspCFR_ERVisit_Strat_MVDID
 
@@ -44,8 +45,9 @@ CreateLocalTempTable:
 		  GROUP BY MVDID
 
 CareFlowRule268:
+	--process moved to uspLetterERVisitQueue
 
-	EXEC uspCFR_Merge @MVDProcedureName ='uspCFR_ERVisit_Strat268_MVDID', @CustID=16, @RuleID = 268, @ProductID=2, @OwnerGroup = 168
+	--EXEC uspCFR_Merge @MVDProcedureName ='uspCFR_ERVisit_Strat268_MVDID', @CustID=16, @RuleID = 268, @ProductID=2, @OwnerGroup = 168
 
 CareFlowRule269:
 	

@@ -1,11 +1,11 @@
-/****** Object:  Procedure [dbo].[Set_CareSpaceAlertNote]    Committed by VersionSQL https://www.versionsql.com ******/
+/****** Object:  Procedure [dbo].[Set_CareSpaceAlertNote_20211021]    Committed by VersionSQL https://www.versionsql.com ******/
 
 -- =============================================
 -- Author:		dpatel
 -- Create date: 09/27/2016
 -- Description:	saves the alter note data from Care space and returns identity value.
 -- =============================================
-CREATE PROCEDURE [dbo].[Set_CareSpaceAlertNote]
+CREATE PROCEDURE [dbo].[Set_CareSpaceAlertNote_20211021]
 	@AlertID int= null,
 	@Note varchar(MAX)= null,
 	@AlertStatusID int= null,
@@ -36,9 +36,6 @@ CREATE PROCEDURE [dbo].[Set_CareSpaceAlertNote]
 	@SendToState bit = null,
 	@SendToDMVendor bit = null,
 	@CaseID	varchar(100) = null,
-	@ServiceId int = null,
-	@ServiceLocationId int = null,
-	@QuickNoteId int = null,
 	@ReturnId int output
 AS
 BEGIN

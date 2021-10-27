@@ -13,7 +13,7 @@ DECLARE @SQL varchar(max)
 DECLARE @SqlCaseProgram varchar(max)
 
 SET @SQL = '
-SELECT DISTINCT  mmf.q1caseowner, anu.FirstName, anu.LastName
+SELECT DISTINCT  REPLACE(mmf.q1caseowner, ''.'','' '') q1caseowner, mmf.q1caseowner caseownervalue, anu.FirstName, anu.LastName
 FROM 
 ABCBS_MemberManagement_Form mmf
 INNER JOIN [AspNetIdentity].[dbo].[AspNetUsers] anu ON mmf.q1caseowner = anu.UserName
@@ -23,7 +23,7 @@ SET @SqlCaseProgram = ' (select VALUE from [dbo].[SplitStringVal]('''+@p_casepro
 
 SET @SQL = @SQL + @SqlCaseProgram + '
 AND q1caseowner IS NOT NULL 
-AND q1caseowner <>'''''
+AND q1caseowner <>'''' Order By 1'
 
 PRINT(@SQL)
 EXEC(@SQL)

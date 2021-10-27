@@ -1,6 +1,6 @@
 /****** Object:  Procedure [dbo].[uspCFR_Homelessness_MVDID]    Committed by VersionSQL https://www.versionsql.com ******/
 
-CREATE PROCEDURE uspCFR_Homelessness_MVDID
+CREATE PROCEDURE [dbo].[uspCFR_Homelessness_MVDID]
 AS
 /*
 		Homelessness
@@ -13,13 +13,17 @@ OwnerGroup:  168 Rules Review
 WHO		WHEN		WHAT
 Scott	2021-10-14	Created.  TFS 6168.
 
-EXEC uspCFR_Homelessness_MVDID --(6153/:52)
+EXEC uspCFR_Homelessness_MVDID --(2989/:57)
+
+EXEC uspCFR_Merge @MVDProcedureName = 'uspCFR_Homelessness_MVDID', @CustID = 16, @RuleID = 306, @ProductID = 2, @OwnerGroup = 168
 
 INSERT INTO HPWorkflowRule (Cust_ID, Name, Description, Body, Action_ID, Action_Days, Active, CreatedDate, Query, AdminUseOnly, [Group])
 VALUES (16,'Homelessness','Members diagnosed with Homelessness and Social Environment.','uspCFR_Homelessness',-1,0,1,'2021-10-14','SP',1,'CF Review')
 SELECT * FROM HPWorkflowRule
 
-EXEC uspCFR_MapRuleExclusion @RuleID = 306, @Action = 'ADD'
+EXEC uspCFR_MapRuleExclusion @RuleID = 306, @Action = 'ADD', @ExclusionID = 21
+
+SELECT * FROM CFR_Exclusion
 
 */
 BEGIN
@@ -30,6 +34,7 @@ Exclusions:
 --a.  Member Expired    --granular exclusion 4 expired and 14 (non viable expired)
 --b.  Member Terminated --granular 26 ineligible
 --c.  Grand Rounds (Except Tyson) -- granular 20 GRD except tyson
+--    Added granular 21 COBCD to ensure primary coverage is ABCBS. 
 --d.  Currently assigned to a social worker -- Custom had to add social work
 --e.  SW Referral with Case Program Social Work within 30 days.  -- Custom  had to add social work 
 --f.  Case Closure of CaseProgram SocialWork within 90 days  --Custom
@@ -92,11 +97,11 @@ Exclusions:
 
 	CREATE INDEX IX_ExcludedMVDID ON #ExcludedMVDID (MVDID)
 	
-		   SELECT DISTINCT H.MVDID
-			 FROM FinalMember FM 
-			 JOIN FinalClaimsHeader H ON FM.MVDID = H.MVDID
+		   SELECT DISTINCT H.MVDID, hc.CodeValue
+			 FROM ComputedCareQueue ccq 
+			 JOIN FinalClaimsHeader H ON ccq.MVDID = H.MVDID
 			 JOIN FinalClaimsHeaderCode HC ON H.ClaimNumber = HC.ClaimNumber
-			WHERE ISNULL(FM.CompanyKey,'0000') != '1338'
+			WHERE ISNULL(ccq.CompanyKey,'0000') != '1338'
 			  AND hc.CodeType = 'DIAG'
 			  AND (hc.CodeValue LIKE 'Z59%' OR hc.CodeValue = 'Z608')
 			  AND NOT EXISTS (SELECT 1 FROM #ExcludedMVDID WHERE MVDID = H.MVDID)

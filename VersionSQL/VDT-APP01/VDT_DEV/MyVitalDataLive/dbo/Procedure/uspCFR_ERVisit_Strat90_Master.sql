@@ -12,14 +12,15 @@ Modifications:
 WHO			WHEN		WHAT
 Scott		2020-11-18	Refactored to use new merge process
 Mike G		2020-12-08	Per client, redirect rules 272 and 273 to Clinical support (159)
+Scott		2021-10-21	Retired 271 to dbo.uspLetterERVisitQueue
 
 EXEC uspCFR_ERVisit_Strat_MVDID
 
 This procedure will call the following three careflow rules
 
-EXEC uspCFR_Merge @MVDProcedureName 'uspCFR_ERVisit_Strat_271_MVDID', @CustID=16, @RuleID = 271, ProductID=2,@OwnerGroup = 168
-EXEC uspCFR_Merge @MVDProcedureName 'uspCFR_ERVisit_Strat_272_MVDID', @CustID=16, @RuleID = 272, ProductID=2,@OwnerGroup = 168
-EXEC uspCFR_Merge @MVDProcedureName 'uspCFR_ERVisit_Strat_273_MVDID', @CustID=16, @RuleID = 273, ProductID=2,@OwnerGroup = 168
+--EXEC uspCFR_Merge @MVDProcedureName 'uspCFR_ERVisit_Strat_271_MVDID', @CustID=16, @RuleID = 271, ProductID=2,@OwnerGroup = 159
+EXEC uspCFR_Merge @MVDProcedureName 'uspCFR_ERVisit_Strat_272_MVDID', @CustID=16, @RuleID = 272, ProductID=2,@OwnerGroup = 159
+EXEC uspCFR_Merge @MVDProcedureName 'uspCFR_ERVisit_Strat_273_MVDID', @CustID=16, @RuleID = 273, ProductID=2,@OwnerGroup = 159
 
 EXEC uspMerge
 
@@ -55,8 +56,8 @@ CreateLocalTempTable:
 
 
 CareFlowRule271:
-
-EXEC uspCFR_Merge @MVDProcedureName ='uspCFR_ERVisit_Strat90_271_MVDID', @CustID=16, @RuleID = 271, @ProductID=2,@OwnerGroup = 168
+--This CFR has been retired as a CFR
+--EXEC uspCFR_Merge @MVDProcedureName ='uspCFR_ERVisit_Strat90_271_MVDID', @CustID=16, @RuleID = 271, @ProductID=2,@OwnerGroup = 168
 
 CareFlowRule272:	
 

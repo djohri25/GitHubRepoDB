@@ -1,4 +1,4 @@
-/****** Object:  Procedure [dbo].[uspMemberSearch]    Committed by VersionSQL https://www.versionsql.com ******/
+/****** Object:  Procedure [dbo].[uspMemberSearch_20211026]    Committed by VersionSQL https://www.versionsql.com ******/
 
 -- =============================================
 -- Author:		<Author,,Name>
@@ -16,10 +16,9 @@
 -- 0812 JPG Added Gender Search Criteria
 -- 0813 Enabled partial MemberID search
 -- 20210525 Jose Optimized SP
--- 20210915			Ed				Added @IncludeTemporaryMembers parameter
--- 20211026			Ed				Modified to support single word in name applying to either first or last name
+-- 20210915 Ed Added @IncludeTemporaryMembers parameter
 -- =============================================
-CREATE PROCEDURE [dbo].[uspMemberSearch]
+CREATE PROCEDURE [dbo].[uspMemberSearch_20211026]
 @Cust_ID	INT
 ,@UserName	VARCHAR(60) = NULL
 ,@FirstName	VARCHAR(100) = NULL
@@ -76,20 +75,9 @@ select @p6
 
 
 
-Declare @CanSeeAllMembers bit = 0;
+Declare @CanSeeAllMembers bit = 0
+
 Set @CanSeeAllMembers = dbo.[fnABCBSUserMemberCheck](@UserName)
-
---PRINT LEN( RTRIM( LTRIM( ISNULL( @FirstName, '' ) ) ) );
---PRINT CHARINDEX( ' ', ISNULL( @FirstName, '' ) );
---PRINT LEN( RTRIM( LTRIM( ISNULL( @LastName, '' ) ) ) );
---PRINT CHARINDEX( ' ', ISNULL( @LastName, '' ) );
-
-DECLARE @TreatAsOR int =
-	CASE
--- If SPL first name = last name then we will treat this as an "OR" instead of an "AND" (see below)
-	WHEN ISNULL( @Spl_FirstName, '' ) != '' AND ISNULL( @Spl_LastName, '' ) != '' AND @Spl_FirstName = @Spl_LastName THEN 1
-	ELSE 0
-	END;
 
 DROP TABLE IF EXISTS #FinalResult
 
@@ -178,31 +166,14 @@ CREATE TABLE #FinalResult (
 			)
 	
 			--Second set of parameters
-			--AND (
-			--	COALESCE(@Spl_FirstName, '' ) = ''
-			--	OR (COALESCE(@Spl_FirstName, '' ) <> '' and MemberFirstName like @Spl_FirstName + '%')
-			--)
-			AND
-			CASE
-			WHEN COALESCE(@Spl_FirstName, '' ) = '' THEN 1
-			WHEN @TreatAsOR = 1 AND MemberFirstName like @Spl_FirstName + '%' THEN 1
-			WHEN @TreatAsOR = 1 AND MemberLastName like @Spl_FirstName + '%' THEN 1
-			WHEN COALESCE(@Spl_FirstName, '' ) <> '' and MemberFirstName like @Spl_FirstName + '%' THEN 1
-			ELSE 0
-			END = 1
-
-			--AND (
-			--	COALESCE(@Spl_LastName, '' ) = ''
-			--	OR (COALESCE(@Spl_LastName, '' ) <> '' and MemberLastName like @Spl_LastName + '%')
-			--)
-			AND
-			CASE
-			WHEN COALESCE(@Spl_LastName, '' ) = '' THEN 1
-			WHEN @TreatAsOR = 1 AND MemberFirstName like @Spl_LastName + '%' THEN 1
-			WHEN @TreatAsOR = 1 AND MemberLastName like @Spl_LastName + '%' THEN 1
-			WHEN COALESCE(@Spl_LastName, '' ) <> '' and MemberLastName like @Spl_LastName + '%' THEN 1
-			ELSE 0
-			END = 1
+			AND (
+				COALESCE(@Spl_FirstName, '' ) = ''
+				OR (COALESCE(@Spl_FirstName, '' ) <> '' and MemberFirstName like @Spl_FirstName + '%')
+			)
+			AND (
+				COALESCE(@Spl_LastName, '' ) = ''
+				OR (COALESCE(@Spl_LastName, '' ) <> '' and MemberLastName like @Spl_LastName + '%')
+			)
 	
 			AND (
 				COALESCE(@DOB, '') = ''
@@ -290,31 +261,14 @@ CREATE TABLE #FinalResult (
 			)
 	
 			--Second set of parameters
-			--AND (
-			--	COALESCE(@Spl_FirstName, '' ) = ''
-			--	OR (COALESCE(@Spl_FirstName, '' ) <> '' and MemberFirstName like @Spl_FirstName + '%')
-			--)
-			AND
-			CASE
-			WHEN COALESCE(@Spl_FirstName, '' ) = '' THEN 1
-			WHEN @TreatAsOR = 1 AND MemberFirstName like @Spl_FirstName + '%' THEN 1
-			WHEN @TreatAsOR = 1 AND MemberLastName like @Spl_FirstName + '%' THEN 1
-			WHEN COALESCE(@Spl_FirstName, '' ) <> '' and MemberFirstName like @Spl_FirstName + '%' THEN 1
-			ELSE 0
-			END = 1
-
-			--AND (
-			--	COALESCE(@Spl_LastName, '' ) = ''
-			--	OR (COALESCE(@Spl_LastName, '' ) <> '' and MemberLastName like @Spl_LastName + '%')
-			--)
-			AND
-			CASE
-			WHEN COALESCE(@Spl_LastName, '' ) = '' THEN 1
-			WHEN @TreatAsOR = 1 AND MemberFirstName like @Spl_LastName + '%' THEN 1
-			WHEN @TreatAsOR = 1 AND MemberLastName like @Spl_LastName + '%' THEN 1
-			WHEN COALESCE(@Spl_LastName, '' ) <> '' and MemberLastName like @Spl_LastName + '%' THEN 1
-			ELSE 0
-			END = 1
+			AND (
+				COALESCE(@Spl_FirstName, '' ) = ''
+				OR (COALESCE(@Spl_FirstName, '' ) <> '' and MemberFirstName like @Spl_FirstName + '%')
+			)
+			AND (
+				COALESCE(@Spl_LastName, '' ) = ''
+				OR (COALESCE(@Spl_LastName, '' ) <> '' and MemberLastName like @Spl_LastName + '%')
+			)
 	
 			AND (
 				COALESCE(@DOB, '') = ''

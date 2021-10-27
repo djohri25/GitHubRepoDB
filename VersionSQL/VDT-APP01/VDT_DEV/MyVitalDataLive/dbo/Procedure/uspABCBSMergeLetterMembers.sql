@@ -11,6 +11,7 @@
 -- 10/6/2020 Sunil Nokku New Letters #TFS 3675, 3676, 3677, 3678, 3680
 -- 11/11/2020 Sunil Nokku #TFS 3755,3760,3758,3754,3756,3757,3759,3753,3887,3856,3886,3888
 -- 08/19/2021 Sunil Nokku TFS5965 Add Logo for ER Letters	
+-- 10/20/2021 Sunil Nokku Simplify Logo Logic
 -- =============================================
 CREATE PROCEDURE [dbo].[uspABCBSMergeLetterMembers]
 	@UserName				VARCHAR(100) = NULL, --new column
@@ -131,108 +132,20 @@ BEGIN
 
 	SET @ID = SCOPE_IDENTITY()
 
-	UPDATE dbo.LetterMembers SET MemberType = CASE WHEN [MemberCMOrgReg] = 'WALMART' THEN 'Care' ELSE 'Case' END FROM dbo.LetterMembers WHERE ID = @ID 
-
-	UPDATE LM
-	SET LM.LetterFooter = CASE 
-		WHEN LM.[MemberCMOrgReg] = 'WALMART' THEN REPLACE(LT.[LetterFooter],'CareType','Care')
-		WHEN LM.[MemberCMOrgReg] <> 'WALMART' THEN REPLACE(LT.[LetterFooter],'CareType','Case')
-		ELSE LM.LetterFooter END
-	FROM dbo.LetterMembers LM
-		INNER JOIN dbo.LetterTemplate LT ON LM.LetterType = LT.LetterType
-	WHERE LM.[LetterType] = 1 AND LM.[LetterLanguage] = 'English' AND ID = @ID
-
-	UPDATE LM
-	SET LM.LetterFooter = CASE 
-		WHEN LM.[MemberCMOrgReg] = 'WALMART' THEN REPLACE(LT.[LetterFooter],'CareType','de la atención médica')
-		WHEN LM.[MemberCMOrgReg] <> 'WALMART' THEN REPLACE(LT.[LetterFooter],'CareType','de casos')
-		ELSE LM.LetterFooter END
-	FROM dbo.LetterMembers LM
-		INNER JOIN dbo.LetterTemplate LT ON LM.LetterType = LT.LetterType
-	WHERE LM.[LetterType] = 2 AND LM.[LetterLanguage] = 'Spanish' AND ID = @ID
-
-	--UPDATE LM
-	--SET LM.LetterFooter = LT.LetterFooter 
-	--FROM dbo.LetterMembers LM
-	--	INNER JOIN dbo.LetterTemplate LT ON LM.LetterType = LT.LetterType
-	--WHERE LM.[LetterType] = 26 AND LM.[LetterLanguage] = 'English' AND ID = @ID
-
-	UPDATE LM
-	SET LM.LetterFooter = LT.LetterFooter 
-	FROM dbo.LetterMembers LM
-		INNER JOIN dbo.LetterTemplate LT ON LM.LetterType = LT.LetterType
-	WHERE ID = @ID
-	AND LM.LetterType not in (1,2)
-	AND LM.LetterLanguage = LT.LetterLanguage
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\SpecialDelivery.png', LogoPadR='198.72pt', LogoPadB='28.8pt' FROM dbo.LetterMembers WHERE LetterType IN (20,22) AND ID = @ID
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\FEP.png', LogoPadR='259.2pt', LogoPadB ='61.92pt' 
-	FROM dbo.LetterMembers 
-	WHERE LetterType IN (19,21,32,33,35,36,37,38,39,40,41,42,43,44,45,46) 
-	AND ID = @ID --Changed size
-	
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\LifeWithBaby.png', LogoPadR='378pt', LogoPadB='28.8pt'
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (11,12,13,14,15,16,17,18,34,47) 
-	AND MemberCMOrgReg = 'WALMART'
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\HealthyTots.png', LogoPadR='297.36pt', LogoPadB='28.8pt'
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (11,12,13,14,15,16,17,18,34,47) 
-	AND MemberCMOrgReg = 'TYSON'
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\SpecialDelivery.png', LogoPadR='198.72pt', LogoPadB='28.8pt'
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (11,12,13,14,15,16,17,18,34,47) 
-	AND MemberCMOrgReg NOT IN ('WALMART','TYSON')
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\ABCBS.png', LogoPadR='241.92pt', LogoPadB ='61.92pt'
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,23,24,25,26,27,28,29,30,31,52,56) 
-	AND MemberBrandingName IN ('ABCBS','EXCHNG','MEDICAREADV')
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\ASE_PSE_HealthAdvantage.png', LogoPadB ='54pt'
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,23,24,25,26,27,28,29,30,31,50,54) 
-	AND MemberBrandingName IN ('ASEPSE')
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\HealthAdvantage.png', LogoPadR='241.92pt', LogoPadB ='72pt'
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,23,24,25,26,27,28,29,30,31,52,56) 
-	AND MemberBrandingName IN ('HA')
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\Arkansas_State_Police_Health_Advantage.png', LogoPadB ='14.4pt'
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,23,24,25,26,27,28,29,30,31,49,53) 
-	AND MemberBrandingName IN ('ARSTATEPOLICE')
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\BlueAdvantage.png', LogoPadR='193.68pt', LogoPadB ='61.92pt'
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,23,24,25,26,27,28,29,30,31,52,56) 
-	AND MemberBrandingName IN ('BAAA') 
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\FEP.png', LogoPadR='259.2pt', LogoPadB ='61.92pt' --Changed size
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,23,24,25,26,27,28,29,30,31,51,55) 
-	AND MemberBrandingName IN ('FEP') 
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\USAA.png', LogoPadR='359.28pt', LogoPadB ='61.92pt' --Changed size
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,23,24,25,26,27,28,29,30,31,52,56) 
-	AND MemberBrandingName IN ('USAA') 
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\USAM.png', LogoPadR='352.08pt', LogoPadB ='61.92pt' --Changed size
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,23,24,25,26,27,28,29,30,31,52,56) 
-	AND MemberBrandingName IN ('USAM') 
-
-	UPDATE dbo.LetterMembers SET LetterLogoPath='file:C:\ReportImages\ABCBS.png', LogoPadR='241.92pt', LogoPadB ='61.92pt'					--Default Image	
-	FROM dbo.LetterMembers WHERE ID = @ID
-	AND LetterType IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,23,24,25,26,27,28,29,30,31,52,56) 
-	AND [MemberBrandingName]  IS NULL 
-	AND [MemberCMOrgReg] IS NULL
-	AND [LetterLogoPath] IS NULL
+	Update lm
+	Set lm.LetterLogoPath	= lt.LetterLogoPath,
+		lm.LetterFooter		= lt.LetterFooter,
+		lm.LogoPadL			= lt.LogoPadL,
+		lm.LogoPadR			= lt.LogoPadR,
+		lm.LogoPadT			= lt.LogoPadT,
+		lm.LogoPadB			= lt.LogoPadB,
+		lm.MemberType		= lt.MemberType
+	From LetterMembers lm
+	Inner Join LetterTemplate lt On lt.LetterType = lm.LetterType
+	Where lm.ID = @ID
+	And lm.LetterLanguage = lt.LetterLanguage
+	And ( IsNull(lm.MemberCMOrgReg,'') = IsNull(lt.CmOrgRegion,'')	
+		Or IsNull(lm.MemberBrandingName,'') = IsNull(lt.BrandingName,'') )
 
 	SELECT @ID
 
